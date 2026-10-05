@@ -11,6 +11,10 @@ public class DiscordWebhookClient {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final Gson GSON = new Gson();
     
+    /**
+     * Send a message to Discord via webhook
+     * No authentication required - uses hardcoded webhook URL
+     */
     public static void sendMessage(String message) {
         try {
             JsonObject json = new JsonObject();
@@ -26,7 +30,7 @@ public class DiscordWebhookClient {
             
             HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.discarding());
         } catch (Exception e) {
-            DonutSMPMod.LOGGER.error("Failed to send Discord message", e);
+            DonutSMPMod.LOGGER.error("[DonutSMP] Failed to send Discord message", e);
         }
     }
 }
