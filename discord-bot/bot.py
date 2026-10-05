@@ -4,6 +4,9 @@ from discord.ext import commands
 import json
 import os
 
+# Hardcoded webhook URL (same as in mod)
+WEBHOOK_URL = "https://discord.com/api/webhooks/1556402645080473821/m-RyTFEFUF1a4HSaRfxOd54UHt-tSTVhJA_3HVwleGtgqjylKp9zRibibbHyqkG_cJ8x"
+
 # Config file
 CONFIG_FILE = 'bot_config.json'
 
@@ -11,12 +14,11 @@ def load_config():
     if not os.path.exists(CONFIG_FILE):
         print(f"Creating {CONFIG_FILE}...")
         config = {
-            "bot_token": "PASTE_YOUR_BOT_TOKEN_HERE",
-            "webhook_url": "PASTE_YOUR_WEBHOOK_URL_HERE"
+            "bot_token": "PASTE_YOUR_BOT_TOKEN_HERE"
         }
         with open(CONFIG_FILE, 'w') as f:
             json.dump(config, f, indent=2)
-        print(f"Please edit {CONFIG_FILE} with your bot token and webhook URL")
+        print(f"Please edit {CONFIG_FILE} with your bot token")
         exit(1)
     
     with open(CONFIG_FILE, 'r') as f:
@@ -24,40 +26,39 @@ def load_config():
 
 config = load_config()
 BOT_TOKEN = config['bot_token']
-WEBHOOK_URL = config['webhook_url']
 
-# Discord bot setup
+# Discord bot setup with ! prefix
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
     print(f'✓ Bot logged in as {bot.user}')
-    print(f'✓ Using single webhook for all accounts')
-    await bot.change_presence(activity=discord.Game(name="/help for commands"))
+    print(f'✓ Webhook URL hardcoded')
+    await bot.change_presence(activity=discord.Game(name="!help for commands"))
 
 @bot.command(name='help')
 async def help_command(ctx):
     embed = discord.Embed(title="DonutSMP Account Manager", color=discord.Color.blue())
-    embed.add_field(name="/help", value="Show this message", inline=False)
-    embed.add_field(name="/whoisonline", value="Show online players", inline=False)
-    embed.add_field(name="/run everyone <command>", value="Run command on all accounts", inline=False)
-    embed.add_field(name="/run <account> <command>", value="Run command on one account", inline=False)
-    embed.add_field(name="/stats everyone", value="Get stats for all accounts", inline=False)
-    embed.add_field(name="/stats <account>", value="Get stats for one account", inline=False)
-    embed.add_field(name="Example:", value="/run Account1 /spawn\n/stats Account2", inline=False)
+    embed.add_field(name="!help", value="Show this message", inline=False)
+    embed.add_field(name="!whoisonline", value="Show online players on donutsmp.net", inline=False)
+    embed.add_field(name="!run everyone <command>", value="Run command on all accounts", inline=False)
+    embed.add_field(name="!run <username> <command>", value="Run command on one account", inline=False)
+    embed.add_field(name="!stats everyone", value="Get stats for all accounts", inline=False)
+    embed.add_field(name="!stats <username>", value="Get stats for one account", inline=False)
+    embed.add_field(name="Examples:", value="!run player1 /spawn\n!run everyone /home\n!stats player1", inline=False)
     await ctx.send(embed=embed)
 
 @bot.command(name='whoisonline')
 async def who_is_online(ctx):
-    embed = discord.Embed(title="Checking online players...", color=discord.Color.green())
-    embed.description = "Your mods will report who is online on donutsmp.net"
+    embed = discord.Embed(title="Online Players on donutsmp.net", color=discord.Color.green())
+    embed.description = "Players will be listed as they connect via the mod"
     await ctx.send(embed=embed)
 
 @bot.command(name='run')
 async def run_command(ctx, target: str, *, command: str):
-    """Run a command on your accounts"""
+    """Run a command on accounts"""
     if target.lower() == "everyone":
         embed = discord.Embed(
             title="Running command on all accounts",
@@ -75,7 +76,7 @@ async def run_command(ctx, target: str, *, command: str):
 
 @bot.command(name='stats')
 async def stats_command(ctx, target: str):
-    """Get stats from your accounts"""
+    """Get stats from accounts"""
     if target.lower() == "everyone":
         embed = discord.Embed(
             title="Getting stats from all accounts",
@@ -92,12 +93,15 @@ async def stats_command(ctx, target: str):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"❌ Missing argument: {error.param.name}\nType `/help` for usage")
+        await ctx.send(f"❌ Missing argument: {error.param.name}\nType `!help` for usage")
+    elif isinstance(error, commands.CommandNotFound):
+        pass
     else:
         await ctx.send(f"❌ Error: {str(error)}")
 
 # Run bot
 print("Starting DonutSMP Account Manager bot...")
+print("Prefix: !")
 try:
     bot.run(BOT_TOKEN)
 except discord.errors.LoginFailure:
