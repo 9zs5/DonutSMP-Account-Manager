@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "donutsmp-account-manager",
+  "version": "${version}",
+  "name": "DonutSMP Account Manager",
+  "description": "Manage Minecraft accounts on donutsmp.net via Discord - No passwords stored",
+  "authors": ["9zs5"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.donutsmp.DonutSMPMod"]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "1.21"
+  }
+}
